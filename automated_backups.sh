@@ -21,7 +21,7 @@
 #This portion is for the logging
 #
 getDate=$(date +%Y-%m-%d)
-logFileName = backups_$getDate.log
+logFileName=backups_$getDate.log
 
 #
 #
