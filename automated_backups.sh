@@ -1,15 +1,12 @@
-#!/usr/bin/env bash
-
-# This script will automate the back ups of specified folders and files of a user's home directory
-# It is the preperation before being sent to a remote server by the server team
-
-
-#Important variable names
+#!/usr/bin/bash
+#This script will automate the back ups of specified folders and files of a user's home directory
+#It is the preperation before being sent to a remote server by the server team
+######################################################################
+#Declaring variables
 getDate=$(date +%Y-%m-%d)  #Grabs the date into a variable
-logFileName=backups_$getDate.log #name of the log file
-getYesterdaysDate=$(date -d "yesterday" +%Y-%m-%d)
-previousLogFile=backups_$getYesterdaysDate.log
-################################################################
+getLastDate=$(date -d "last friday" +%Y-%m-%d) #grabs the date of last
+previousLogFile=backups_$getLastDate.log
+######################################################################
 
 #This portion if for the zenity prompt
 #This will be a separate script to check if the backup directory
@@ -21,11 +18,6 @@ then
 else
   zenity --info --width=300 --text="Your backup has failed, please submit a ticket to determine the failure."
 fi
-#
-#
-#
-
-
 '''
 TO BE REVIEWED BY ANTONIO PRADA!!!!!
 
@@ -36,47 +28,48 @@ else
   zenity --info --width=300 --text="Your backup has failed, please submit a ticket to determine the failure."
 fi
 '''
+######################################################################
+#Parsing and copying folders and files to back up folder
+mkdir ~/backup_$getDate   #to creat the backup folder with dates.
+backupFolder=~/backup_$getDate
 
-################################################################
+cp -R ~/Music $backupFolder #to copy the music directory into the backup directory
+cp -R ~/Documents $backupFolder  #copy documents into teh backup folder
+cp -R ~/Pictures $backupFolder  #copy pictures to bakup
+cp -R ~/Public $backupFolder  #copy public to bakup
+cp -R ~/Templates $backupFolder #copy templates to backup
+cp -R ~/.bash_history $backupFolder #copy bashhistory to backup
+cp -R ~/.bash_profile $backupFolder
 
-#This portion is for the the archiving and parsing
-#
-#
-#
-#
-#
+tar -czvf $backupFolder.tar.gz $backupFolder
+######################################################################
+######################################################################
+#Logging Portion
+#Variable storing the log file name
+logFileName=backups_$getDate.log #name of the log file
 
-
-################################################################
-#This portion is for the logging
-# If statemnet to create log directory for all logs going forward
-# Directory is created if not found | If found just create log file
-if [ ! -d /var/log/backup_logs ]
+#The following conditional tests for a log directory, if not present
+#It will be created and log file created as well.
+if [ ! -d ~/.local/log ]
 then
-  mkdir /var/log/backup_logs
-  touch /var/log/backup_logs/$logFileName
+  mkdir ~/.local/log/
+  mkdir ~/.local/log/backup_logs
+  touch ~/.local/log/backup_logs/$logFileName
 else
-  touch /var/log/backup_logs/$logFileName
+  touch ~/.local/log/backup_logs/$logFileName
 fi
 
-#Urooj please provide back up directory name or var for the following line
-#This next line grabs the contents of the backup directory and appends it to a
-#log file.
-if [ ! "$(ls -A $PATH_OR_VAR)" ]
+#The following conditional tests if the backup folder is empty
+#If its empty, then a log file will be appeneded with failed otherwise successful
+if [ ! "$(ls -A $backupFolder)" ]
 then
-    echo "backup failed" >> /var/log/backup_logs/$logFileName
+    echo "backup failed" >> ~/.local/log/backup_logs/$logFileName
 else
-  ls -A -R $INSERT_PATH_OR_VARIABLE_FOR_DIRECTORY_CREATED_FOR_BACKUPS  > /var/log/backup_logs/$logFileName
-  echo "backup successful" >> /var/log/backup_logs/$logFileName
+  ls -A -R $backupFolder  > ~/.local/log/backup_logs/$logFileName
+  echo "backup successful" >> ~/.local/log/backup_logs/$logFileName
 fi
-
-#The next line deletes the backup folder NOT the tar.gz file
-#That has to be created from this folder
-rm -r $INSERT_PATH_OR_VARIABLE_FOR_DIRECTORY_CREATED_FOR_BACKUPS
-
-mkdir `date +%m%d%Y`_backup   #this little peace takes me 4 hours
-
-#
-#
-#
-#
+######################################################################
+######################################################################
+#Remove the original backup folder after archiving
+rm -r $backupFolder
+######################################################################
