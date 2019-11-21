@@ -30,8 +30,9 @@ fi
 '''
 ######################################################################
 #Parsing and copying folders and files to back up folder
-mkdir ~/backup_$getDate   #to creat the backup folder with dates.
-backupFolder=~/backup_$getDate
+getDate=$(date +%Y-%m-%d)
+mkdir ~/backupFoder$getDate   #to creat the backup folder with dates.
+backupFolder=~/backupFoder$getDate
 
 cp -R ~/Music $backupFolder #to copy the music directory into the backup directory
 cp -R ~/Documents $backupFolder  #copy documents into teh backup folder
